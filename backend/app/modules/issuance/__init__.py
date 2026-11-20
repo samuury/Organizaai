@@ -1,0 +1,1 @@
+"""Emissão de documentos por instituições."""

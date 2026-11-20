@@ -1,0 +1,1 @@
+"""Auditoria imutável de operações."""

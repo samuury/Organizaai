@@ -1,0 +1,1 @@
+"""Regras de negócio de verificação de documentos."""

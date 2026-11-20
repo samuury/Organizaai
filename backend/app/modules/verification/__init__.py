@@ -1,0 +1,1 @@
+"""Verificação de autenticidade de documentos."""
