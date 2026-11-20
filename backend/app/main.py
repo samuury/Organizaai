@@ -22,12 +22,22 @@ from app.modules.verification.router import router as verification_router
 from app.modules.wallet.router import router as wallet_router
 
 app = FastAPI(title="Organiza AI", version="0.1.0")
+cors_origins = list(
+    {
+        settings.frontend_origin,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    }
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_origin],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.state.limiter = limiter
 app.state.audit_session_factory = SessionLocal
