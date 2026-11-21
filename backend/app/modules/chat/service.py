@@ -97,7 +97,9 @@ async def processar_mensagem_chat(
 	usuario_perfil: str | None = None,
 ) -> tuple[str, str]:
 	"""Envia a conversa para a API da Anthropic Claude Haiku ou usa fallback assistido."""
-	modelo = settings.anthropic_model or "claude-5-5-haiku"
+	modelo = settings.anthropic_model or "claude-haiku-5-5"
+	if modelo == "claude-5-5-haiku":
+		modelo = "claude-haiku-5-5"
 
 	if not settings.anthropic_api_key:
 		resposta_local = _gerar_resposta_local_assistente(

@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.main import app
 from app.modules.audit.models import AuditLog
@@ -17,7 +18,8 @@ from app.modules.chat.service import processar_mensagem_chat
 
 
 @pytest.mark.anyio
-async def test_servico_chat_fallback_inteligente() -> None:
+async def test_servico_chat_fallback_inteligente(monkeypatch: pytest.MonkeyPatch) -> None:
+	monkeypatch.setattr(settings, "anthropic_api_key", None)
 	resposta_consent, modelo = await processar_mensagem_chat(
 		mensagem="Como funciona o consentimento para empresas?",
 		historico=[],
@@ -35,7 +37,8 @@ async def test_servico_chat_fallback_inteligente() -> None:
 	assert "qr code" in resposta_emissao.lower() or "lote" in resposta_emissao.lower()
 
 
-def test_endpoint_chat_message() -> None:
+def test_endpoint_chat_message(monkeypatch: pytest.MonkeyPatch) -> None:
+	monkeypatch.setattr(settings, "anthropic_api_key", None)
 	engine = create_engine(
 		"sqlite://",
 		connect_args={"check_same_thread": False},

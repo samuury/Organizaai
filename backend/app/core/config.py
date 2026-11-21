@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     ocr_mass_failure_threshold: int = Field(default=5, ge=1)
     suspicious_access_threshold: int = Field(default=5, ge=1)
     anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-5-5-haiku"
+    anthropic_model: str = "claude-haiku-5-5"
 
     model_config = SettingsConfigDict(env_file=[".env", "../.env"], extra="ignore")
 
