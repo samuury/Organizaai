@@ -328,6 +328,14 @@ h2 { margin-bottom: 0; font-size: 17px; }
 .chatbot-bubble-text {
   white-space: pre-wrap;
 }
+.chatbot-bubble-text p { margin: 0 0 7px; }
+.chatbot-bubble-text p:last-child { margin-bottom: 0; }
+.chatbot-bubble-text strong { color: #164f3c; font-weight: 700; }
+.chatbot-bubble-user .chatbot-bubble-text strong { color: #fff; }
+.chatbot-bubble-text ul, .chatbot-bubble-text ol { margin: 5px 0 8px; padding-left: 19px; }
+.chatbot-bubble-text li { margin: 3px 0; }
+.chatbot-bubble-text a { color: #155e49; text-decoration: underline; text-underline-offset: 2px; }
+.chatbot-bubble-user .chatbot-bubble-text a { color: #fff; }
 .chatbot-suggestions {
   display: flex;
   flex-direction: column;

@@ -80,7 +80,7 @@ def _gerar_resposta_local_assistente(
 		)
 
 	return (
-		f"{saudacao}Sou o assistente do **Organiza AI** (alimentado pelo modelo Anthropic Claude 3.5 Haiku).\n\n"
+		f"{saudacao}Sou o assistente do **Organiza AI** (alimentado pelo Anthropic Claude Haiku 5.5).\n\n"
 		"Posso te ajudar com dúvidas sobre:\n"
 		"- Organização e envio de documentos na Carteira Digital;\n"
 		"- Gestão de consentimentos e acessos conforme a LGPD;\n"
@@ -97,7 +97,7 @@ async def processar_mensagem_chat(
 	usuario_perfil: str | None = None,
 ) -> tuple[str, str]:
 	"""Envia a conversa para a API da Anthropic Claude Haiku ou usa fallback assistido."""
-	modelo = settings.anthropic_model or "claude-3-5-haiku-20241022"
+	modelo = settings.anthropic_model or "claude-5-5-haiku"
 
 	if not settings.anthropic_api_key:
 		resposta_local = _gerar_resposta_local_assistente(

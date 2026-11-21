@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { Bot, MessageSquare, Send, Sparkles, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { api, type MensagemChat } from '../api/client'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -16,7 +17,7 @@ export default function ChatbotWidget() {
   const [mensagens, setMensagens] = useState<MensagemChat[]>([
     {
       role: 'assistant',
-      content: `Olá${usuario ? `, ${usuario.nome}` : ''}! Sou o assistente inteligente do **Organiza AI** (usando Anthropic Claude 3.5 Haiku). Posso esclarecer dúvidas sobre carteira, consentimentos, emissão ou verificação.`,
+      content: `Olá${usuario ? `, ${usuario.nome}` : ''}! Sou o assistente inteligente do **Organiza AI** (usando Anthropic Claude Haiku 5.5). Posso esclarecer dúvidas sobre carteira, consentimentos, emissão ou verificação.`,
     },
   ])
   const [entrada, setEntrada] = useState('')
@@ -82,7 +83,7 @@ export default function ChatbotWidget() {
               </div>
               <div>
                 <strong>Assistente Organiza AI</strong>
-                <small>Anthropic Claude 3.5 Haiku</small>
+                <small>Anthropic Claude Haiku 5.5</small>
               </div>
             </div>
             <button
@@ -107,7 +108,9 @@ export default function ChatbotWidget() {
                     <span>Claude Haiku</span>
                   </div>
                 ) : null}
-                <div className="chatbot-bubble-text">{msg.content}</div>
+                <div className="chatbot-bubble-text">
+                  {msg.role === 'assistant' ? <ReactMarkdown>{msg.content}</ReactMarkdown> : msg.content}
+                </div>
               </div>
             ))}
             {carregando ? (

@@ -58,7 +58,7 @@ com `npm test`.
 ## Estrutura
 
 - `backend/app/modules/`: módulos de autenticação, carteira, emissão, verificação,
-  consentimento, auditoria, dashboard e chat (assistente inteligente com Anthropic Claude 3.5 Haiku).
+    consentimento, auditoria, dashboard e chat (assistente inteligente com Anthropic Claude Haiku 5.5).
 - `backend/alembic/`: configuração e versões das migrações do banco.
 - `frontend/`: aplicação React, TypeScript e Tailwind CSS.
 - `docker-compose.yml`: banco PostgreSQL para desenvolvimento local.
