@@ -124,8 +124,9 @@ def download_documento(
 	user_id: Annotated[int, Depends(get_current_user_id)],
 	session: Annotated[Session, Depends(get_db)],
 	storage: Annotated[StorageService, Depends(get_storage_service)],
+	disposition: Annotated[str, Query(description="inline para visualizar ou attachment para download")] = "inline",
 ) -> Response:
-	"""Baixa o arquivo original e registra o acesso."""
+	"""Baixa ou visualiza o arquivo original e registra o acesso."""
 	try:
 		document = obter_documento(session, usuario_id=user_id, document_id=document_id)
 		content = storage.read(document.storage_key)
@@ -142,11 +143,12 @@ def download_documento(
 		ip=_client_ip(request),
 	)
 	session.commit()
+	tipo_disposicao = "attachment" if disposition == "attachment" else "inline"
 	return Response(
 		content=content,
 		media_type=document.content_type,
 		headers={
-			"Content-Disposition": f"attachment; filename*=UTF-8''{quote(document.nome_arquivo)}"
+			"Content-Disposition": f"{tipo_disposicao}; filename*=UTF-8''{quote(document.nome_arquivo)}"
 		},
 	)
 

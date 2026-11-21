@@ -56,6 +56,15 @@ export default function CitizenWalletPage() {
     }
   }
 
+  async function abrir(documento: DocumentoCarteira) {
+    setErro('')
+    try {
+      await api.abrirDocumento(documento.id)
+    } catch (error) {
+      setErro(error instanceof ApiError ? error.message : 'Não foi possível abrir o documento no navegador.')
+    }
+  }
+
   async function upload(event: FormEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0]
     event.currentTarget.value = ''
@@ -124,7 +133,17 @@ export default function CitizenWalletPage() {
             <article className="document-row" key={documento.id}>
               <span className="document-type-icon"><FileText size={20} aria-hidden="true" /></span>
               <div className="document-main">
-                <h2>{documento.nome_arquivo}</h2>
+                <h2>
+                  <button
+                    type="button"
+                    className="document-name-button"
+                    onClick={() => void abrir(documento)}
+                    title="Clique para abrir no leitor do navegador"
+                    aria-label={`Abrir ${documento.nome_arquivo} no leitor do navegador`}
+                  >
+                    {documento.nome_arquivo}
+                  </button>
+                </h2>
                 <p>{documento.tipo_documento ?? 'Tipo não identificado'} <span aria-hidden="true">·</span> {formatBytes(documento.tamanho_bytes)}</p>
                 {documento.nome_extraido || documento.emissor_extraido ? (
                   <p className="document-extracted">{documento.nome_extraido ? `Nome: ${documento.nome_extraido}` : ''}{documento.nome_extraido && documento.emissor_extraido ? ' · ' : ''}{documento.emissor_extraido ? `Emissor: ${documento.emissor_extraido}` : ''}</p>

@@ -205,7 +205,7 @@ export const api = {
     const headers = new Headers()
     const token = sessionStorage.getItem(TOKEN_KEY)
     if (token) headers.set('Authorization', `Bearer ${token}`)
-    const response = await fetch(`${API_URL}/wallet/documents/${id}/download`, {
+    const response = await fetch(`${API_URL}/wallet/documents/${id}/download?disposition=attachment`, {
       headers,
       credentials: 'include',
     })
@@ -216,6 +216,20 @@ export const api = {
     link.download = filename
     link.click()
     URL.revokeObjectURL(objectUrl)
+  },
+
+  abrirDocumento: async (id: number) => {
+    const headers = new Headers()
+    const token = sessionStorage.getItem(TOKEN_KEY)
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    const response = await fetch(`${API_URL}/wallet/documents/${id}/download?disposition=inline`, {
+      headers,
+      credentials: 'include',
+    })
+    if (!response.ok) throw new ApiError('Não foi possível abrir o documento.', response.status)
+    const blob = await response.blob()
+    const objectUrl = URL.createObjectURL(blob)
+    window.open(objectUrl, '_blank')
   },
 
   listarConsentimentos: () => request<Consentimento[]>('/consent'),
