@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     """Configurações centrais da aplicação."""
 
     database_url: str = "postgresql+psycopg://organizaai:organizaai_dev@localhost:5432/organizaai"
-    jwt_secret_key: str = "change-this-development-secret"
+    jwt_secret_key: str = "change-this-development-secret-32bytes"
     storage_path: Path = Path("storage")
     ocr_language: str = "por"
     api_public_url: str = "http://localhost:8000"

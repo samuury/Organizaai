@@ -3,7 +3,7 @@
 import re
 import uuid
 from io import BytesIO
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from PIL import Image
