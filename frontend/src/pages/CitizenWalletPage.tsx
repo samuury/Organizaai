@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { ArrowDownToLine, FilePlus2, FileText, Search, ShieldCheck } from 'lucide-react'
+import { ArrowDownToLine, Check, FilePlus2, FileText, Pencil, Search, ShieldCheck, Trash2, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api, ApiError, type DocumentoCarteira } from '../api/client'
 
@@ -27,6 +27,15 @@ export default function CitizenWalletPage() {
   const [carregando, setCarregando] = useState(true)
   const [enviando, setEnviando] = useState(false)
   const [reload, setReload] = useState(0)
+
+  const [documentoEditando, setDocumentoEditando] = useState<DocumentoCarteira | null>(null)
+  const [formEdicao, setFormEdicao] = useState({
+    tipo_documento: '',
+    nome_extraido: '',
+    emissor_extraido: '',
+    data_extraida: '',
+  })
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false)
 
   const carregar = useCallback(async (term = '') => {
     setCarregando(true)
@@ -62,6 +71,53 @@ export default function CitizenWalletPage() {
       await api.abrirDocumento(documento.id)
     } catch (error) {
       setErro(error instanceof ApiError ? error.message : 'Não foi possível abrir o documento no navegador.')
+    }
+  }
+
+  function iniciarEdicao(doc: DocumentoCarteira) {
+    setDocumentoEditando(doc)
+    setFormEdicao({
+      tipo_documento: doc.tipo_documento ?? '',
+      nome_extraido: doc.nome_extraido ?? '',
+      emissor_extraido: doc.emissor_extraido ?? '',
+      data_extraida: doc.data_extraida ? doc.data_extraida.slice(0, 10) : '',
+    })
+  }
+
+  async function salvarEdicao(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!documentoEditando) return
+    setSalvandoEdicao(true)
+    setErro('')
+    try {
+      const atualizado = await api.atualizarDocumento(documentoEditando.id, {
+        tipo_documento: (formEdicao.tipo_documento as 'diploma' | 'certidao' | 'comprovante') || null,
+        nome_extraido: formEdicao.nome_extraido.trim() || null,
+        emissor_extraido: formEdicao.emissor_extraido.trim() || null,
+        data_extraida: formEdicao.data_extraida || null,
+      })
+      setDocumentos((prev) => prev.map((d) => (d.id === atualizado.id ? atualizado : d)))
+      setMensagem('Documento atualizado com sucesso.')
+      setDocumentoEditando(null)
+    } catch (error) {
+      setErro(error instanceof ApiError ? error.message : 'Falha ao atualizar o documento.')
+    } finally {
+      setSalvandoEdicao(false)
+    }
+  }
+
+  async function excluir(documento: DocumentoCarteira) {
+    const confirmou = window.confirm(
+      `Deseja realmente excluir o documento "${documento.nome_arquivo}"? Esta ação removerá o arquivo definitivamente.`,
+    )
+    if (!confirmou) return
+    setErro('')
+    try {
+      await api.excluirDocumento(documento.id)
+      setDocumentos((prev) => prev.filter((d) => d.id !== documento.id))
+      setMensagem(`Documento "${documento.nome_arquivo}" excluído com sucesso.`)
+    } catch (error) {
+      setErro(error instanceof ApiError ? error.message : 'Falha ao excluir o documento.')
     }
   }
 
@@ -153,12 +209,40 @@ export default function CitizenWalletPage() {
                 <i aria-hidden="true" />{statusLabel(documento.estado_processamento)}
               </span>
               <div className="document-actions">
-                <button className="icon-button" type="button" title="Baixar documento" aria-label={`Baixar ${documento.nome_arquivo}`} onClick={() => void baixar(documento)}>
-                  <ArrowDownToLine size={17} aria-hidden="true" />
+                <button
+                  className="icon-button"
+                  type="button"
+                  title="Editar informações"
+                  aria-label={`Editar ${documento.nome_arquivo}`}
+                  onClick={() => iniciarEdicao(documento)}
+                >
+                  <Pencil size={15} aria-hidden="true" />
                 </button>
-                <Link className="outline-button small-button" to={`/cidadao/consentimentos?documento=${documento.id}`}>
-                  <ShieldCheck size={15} aria-hidden="true" /> Acessos
+                <button
+                  className="icon-button"
+                  type="button"
+                  title="Baixar documento"
+                  aria-label={`Baixar ${documento.nome_arquivo}`}
+                  onClick={() => void baixar(documento)}
+                >
+                  <ArrowDownToLine size={16} aria-hidden="true" />
+                </button>
+                <Link
+                  className="outline-button small-button"
+                  to={`/cidadao/consentimentos?documento=${documento.id}`}
+                  title="Gerenciar acessos de empresas"
+                >
+                  <ShieldCheck size={14} aria-hidden="true" /> Acessos
                 </Link>
+                <button
+                  className="danger-icon-button"
+                  type="button"
+                  title="Excluir documento"
+                  aria-label={`Excluir ${documento.nome_arquivo}`}
+                  onClick={() => void excluir(documento)}
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                </button>
               </div>
             </article>
           ))}
@@ -170,6 +254,86 @@ export default function CitizenWalletPage() {
           <p>{busca ? 'Experimente outro termo de busca.' : 'Adicione um documento para começar a organizar sua carteira.'}</p>
         </div>
       )}
+      {documentoEditando ? (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-edit-title">
+          <div className="modal-content">
+            <header className="modal-header">
+              <div>
+                <h2 id="modal-edit-title">Editar dados do documento</h2>
+                <small>{documentoEditando.nome_arquivo}</small>
+              </div>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => setDocumentoEditando(null)}
+                aria-label="Fechar"
+              >
+                <X size={16} />
+              </button>
+            </header>
+            <form onSubmit={salvarEdicao} className="form-stack">
+              <label className="field-label" htmlFor="edit-tipo">Tipo de documento</label>
+              <select
+                id="edit-tipo"
+                className="text-input"
+                value={formEdicao.tipo_documento}
+                onChange={(e) => setFormEdicao({ ...formEdicao, tipo_documento: e.target.value })}
+              >
+                <option value="">Não identificado</option>
+                <option value="diploma">Diploma</option>
+                <option value="certidao">Certidão</option>
+                <option value="comprovante">Comprovante</option>
+              </select>
+
+              <label className="field-label" htmlFor="edit-nome">Nome do titular</label>
+              <input
+                id="edit-nome"
+                type="text"
+                className="text-input"
+                value={formEdicao.nome_extraido}
+                onChange={(e) => setFormEdicao({ ...formEdicao, nome_extraido: e.target.value })}
+                placeholder="Ex: Nome Completo"
+              />
+
+              <label className="field-label" htmlFor="edit-emissor">Instituição emissora</label>
+              <input
+                id="edit-emissor"
+                type="text"
+                className="text-input"
+                value={formEdicao.emissor_extraido}
+                onChange={(e) => setFormEdicao({ ...formEdicao, emissor_extraido: e.target.value })}
+                placeholder="Ex: Universidade ou Cartório"
+              />
+
+              <label className="field-label" htmlFor="edit-data">Data do documento</label>
+              <input
+                id="edit-data"
+                type="date"
+                className="text-input"
+                value={formEdicao.data_extraida}
+                onChange={(e) => setFormEdicao({ ...formEdicao, data_extraida: e.target.value })}
+              />
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="outline-button"
+                  onClick={() => setDocumentoEditando(null)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="primary-button"
+                  disabled={salvandoEdicao}
+                >
+                  <Check size={16} /> {salvandoEdicao ? 'Salvando...' : 'Salvar alterações'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

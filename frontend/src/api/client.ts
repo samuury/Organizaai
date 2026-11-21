@@ -232,6 +232,19 @@ export const api = {
     window.open(objectUrl, '_blank')
   },
 
+  atualizarDocumento: (
+    id: number,
+    dados: {
+      tipo_documento?: 'diploma' | 'certidao' | 'comprovante' | null
+      nome_extraido?: string | null
+      data_extraida?: string | null
+      emissor_extraido?: string | null
+    },
+  ) => request<DocumentoCarteira>(`/wallet/documents/${id}`, { method: 'PATCH', body: JSON.stringify(dados) }),
+
+  excluirDocumento: (id: number) =>
+    request<void>(`/wallet/documents/${id}`, { method: 'DELETE' }),
+
   listarConsentimentos: () => request<Consentimento[]>('/consent'),
   concederConsentimento: (dados: { documento_id: number; empresa_id: number; expira_em: string }) =>
     request<Consentimento>('/consent', { method: 'POST', body: JSON.stringify(dados) }),
