@@ -163,8 +163,14 @@ def corrigir_documento(
 	changes: dict[str, Any],
 	ip: str | None = None,
 ) -> WalletDocument:
-	"""Atualiza os campos extraídos e registra os campos corrigidos."""
+	"""Atualiza os campos extraídos e metadados e registra a auditoria."""
 	document = obter_documento(session, usuario_id=usuario_id, document_id=document_id)
+	if "nome_arquivo" in changes and changes["nome_arquivo"]:
+		ext_original = Path(document.nome_arquivo).suffix
+		novo_nome = changes["nome_arquivo"]
+		if ext_original and not novo_nome.lower().endswith(ext_original.lower()):
+			changes["nome_arquivo"] = f"{novo_nome}{ext_original}"
+
 	changed_fields = list(changes)
 	for field, value in changes.items():
 		setattr(document, field, value)

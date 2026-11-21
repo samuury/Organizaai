@@ -30,6 +30,7 @@ export default function CitizenWalletPage() {
 
   const [documentoEditando, setDocumentoEditando] = useState<DocumentoCarteira | null>(null)
   const [formEdicao, setFormEdicao] = useState({
+    nome_arquivo: '',
     tipo_documento: '',
     nome_extraido: '',
     emissor_extraido: '',
@@ -77,6 +78,7 @@ export default function CitizenWalletPage() {
   function iniciarEdicao(doc: DocumentoCarteira) {
     setDocumentoEditando(doc)
     setFormEdicao({
+      nome_arquivo: doc.nome_arquivo,
       tipo_documento: doc.tipo_documento ?? '',
       nome_extraido: doc.nome_extraido ?? '',
       emissor_extraido: doc.emissor_extraido ?? '',
@@ -91,6 +93,7 @@ export default function CitizenWalletPage() {
     setErro('')
     try {
       const atualizado = await api.atualizarDocumento(documentoEditando.id, {
+        nome_arquivo: formEdicao.nome_arquivo.trim() || undefined,
         tipo_documento: (formEdicao.tipo_documento as 'diploma' | 'certidao' | 'comprovante') || null,
         nome_extraido: formEdicao.nome_extraido.trim() || null,
         emissor_extraido: formEdicao.emissor_extraido.trim() || null,
@@ -272,6 +275,17 @@ export default function CitizenWalletPage() {
               </button>
             </header>
             <form onSubmit={salvarEdicao} className="form-stack">
+              <label className="field-label" htmlFor="edit-nome-arquivo">Nome do arquivo</label>
+              <input
+                id="edit-nome-arquivo"
+                type="text"
+                className="text-input"
+                required
+                value={formEdicao.nome_arquivo}
+                onChange={(e) => setFormEdicao({ ...formEdicao, nome_arquivo: e.target.value })}
+                placeholder="Ex: Declaracao_Matricula.pdf"
+              />
+
               <label className="field-label" htmlFor="edit-tipo">Tipo de documento</label>
               <select
                 id="edit-tipo"

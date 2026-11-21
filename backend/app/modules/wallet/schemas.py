@@ -28,16 +28,17 @@ class DocumentoResposta(BaseModel):
 
 
 class DocumentoCorrecao(BaseModel):
-	"""Campos extraídos que o usuário pode revisar e corrigir."""
+	"""Campos extraídos e metadados que o usuário pode revisar e corrigir."""
 
 	model_config = ConfigDict(extra="forbid")
 
+	nome_arquivo: str | None = Field(default=None, min_length=1, max_length=255)
 	tipo_documento: TipoDocumento | None = None
 	nome_extraido: str | None = Field(default=None, max_length=255)
 	data_extraida: date | None = None
 	emissor_extraido: str | None = Field(default=None, max_length=255)
 
-	@field_validator("nome_extraido", "emissor_extraido")
+	@field_validator("nome_arquivo", "nome_extraido", "emissor_extraido")
 	@classmethod
 	def normalizar_texto(cls, value: str | None) -> str | None:
 		"""Remove espaços externos das correções textuais."""

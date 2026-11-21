@@ -235,6 +235,7 @@ export const api = {
   atualizarDocumento: (
     id: number,
     dados: {
+      nome_arquivo?: string | null
       tipo_documento?: 'diploma' | 'certidao' | 'comprovante' | null
       nome_extraido?: string | null
       data_extraida?: string | null
