@@ -3,9 +3,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.notifications import notificar_tentativas_suspeitas
 from app.core.rate_limit import limiter
@@ -31,8 +33,13 @@ def verificar_documento(
 	request: Request,
 	background_tasks: BackgroundTasks,
 	session: Annotated[Session, Depends(get_db)],
-) -> VerificacaoPublicaResposta:
+):
 	"""Retorna estado, emissor e data sem carregar ou revelar dados do titular."""
+	accept_header = request.headers.get("accept", "")
+	if "text/html" in accept_header and settings.frontend_origin:
+		frontend_url = f"{settings.frontend_origin.rstrip('/')}/verificar/{codigo}"
+		return RedirectResponse(url=frontend_url, status_code=307)
+
 	row = session.execute(
 		select(
 			IssuedDocument.id,
